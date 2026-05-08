@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Female Horror Fighting Game</title>
+    <style>
+        body { margin: 0; background: #000; color: #f00; font-family: Arial; overflow: hidden; }
+        canvas { display: block; margin: 0 auto; image-rendering: pixelated; }
+        #ui { position: absolute; top: 10px; left: 0; right: 0; text-align: center; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div id="ui">
+        <h1>🔥 HORROR FIGHT 🔥</h1>
+        <p>Player 1 (Succubus): WASD + Space | Player 2 (Forest Entity): Arrows + Enter</p>
+    </div>
+    <canvas id="game" width="800" height="400"></canvas>
+
+    <script>
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+
+        // Game variables
+        let player1 = { x: 150, y: 250, width: 60, height: 100, health: 100, color: '#8B0000', name: 'Succubus' };
+        let player2 = { x: 550, y: 250, width: 60, height: 100, health: 100, color: '#111', name: 'Forest Lord' };
+
+        let keys = {};
+
+        document.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+        document.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+        function drawBackground() {
+            ctx.fillStyle = '#1a001a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Twisted trees and blood mist
+            ctx.fillStyle = '#300';
+            ctx.fillRect(0, 300, canvas.width, 100);
+        }
+
+        function drawFighter(p, isP1) {
+            ctx.fillStyle = p.color;
+            ctx.fillRect(p.x, p.y, p.width, p.height);
+            // Simple head/horns for Succubus
+            if (isP1) {
+                ctx.fillStyle = '#f66';
+                ctx.fillRect(p.x + 20, p.y + 10, 20, 20); // head
+            } else {
+                ctx.fillStyle = '#555';
+                ctx.fillRect(p.x + 15, p.y + 5, 30, 30);
+            }
+        }
+
+        function update() {
+            // Player 1 controls (Succubus)
+            if (keys['a'] && player1.x > 0) player1.x -= 5;
+            if (keys['d'] && player1.x < canvas.width - player1.width) player1.x += 5;
+            if (keys['w'] && player1.y > 150) player1.y -= 5;
+            if (keys['s'] && player1.y < 280) player1.y += 5;
+            if (keys[' ']) { // Attack
+                if (Math.abs(player1.x - player2.x) < 80) player2.health -= 0.5;
+            }
+
+            // Player 2 controls (Forest Entity)
+            if (keys['arrowleft'] && player2.x > 0) player2.x -= 5;
+            if (keys['arrowright'] && player2.x < canvas.width - player2.width) player2.x += 5;
+            if (keys['arrowup'] && player2.y > 150) player2.y -= 5;
+            if (keys['arrowdown'] && player2.y < 280) player2.y += 5;
+            if (keys['enter']) {
+                if (Math.abs(player1.x - player2.x) < 80) player1.health -= 0.5;
+            }
+
+            // Boundaries
+            player1.x = Math.max(0, Math.min(canvas.width - player1.width, player1.x));
+            player2.x = Math.max(0, Math.min(canvas.width - player2.width, player2.x));
+        }
+
+        function drawHealth() {
+            ctx.fillStyle = '#0f0';
+            ctx.fillRect(50, 30, player1.health * 2, 20);
+            ctx.fillRect(500, 30, player2.health * 2, 20);
+            ctx.fillStyle = '#fff';
+            ctx.font = '20px Arial';
+            ctx.fillText(player1.name, 50, 20);
+            ctx.fillText(player2.name, 550, 20);
+        }
+
+        function gameLoop() {
+            drawBackground();
+            update();
+            drawFighter(player1, true);
+            drawFighter(player2, false);
+            drawHealth();
+
+            if (player1.health <= 0) ctx.fillText('🌲 FOREST LORD WINS!', 250, 200);
+            if (player2.health <= 0) ctx.fillText('😈 SUCCUBUS WINS!', 250, 200);
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
